@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+  master:
+    #image: bitnami/spark
+    image: nopponaim603/spark-streaming-kafka:3.3.0
+    hostname: master
+    environment:
+      SPARK_HOME: /usr/local/spark
+      MASTER: spark://master:7077
+      SPARK_CONF_DIR: /usr/local/spark/conf
+      SPARK_PUBLIC_DNS: localhost
+      HADOOP_HOME: /usr/local/spark
+    ports:
+      - 8080:8080
+      - 7077:7077
+      - 6066:6066
+    command: /usr/local/spark/bin/spark-class org.apache.spark.deploy.master.Master -h master
+
+  slave:
+    image: nopponaim603/spark-streaming-kafka:3.3.0
+    hostname: worker
+    depends_on:
+      - master
+    environment:
+      SPARK_HOME: /usr/local/spark
+      SPARK_CONF_DIR: /usr/local/spark/conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    ports:
+      - 8081:8081
+    command: /usr/local/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+
+  notebook:
+    #image: jupyter/all-spark-notebook:spark-3.1.2
+    image: nopponaim603/jupyter-notebook:spark-kafka-3.1.2
+    #image: nopponaim603/jupyter-toree-notebook
+    environment:
+      SPARK_OPTS: '--master=spark://master:7077'
+    command: jupyter notebook --ip=0.0.0.0 --allow-root
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebooks:/home/work
+    #  - ./notebooks:/notebooks
