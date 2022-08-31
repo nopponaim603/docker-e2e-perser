@@ -1,0 +1,125 @@
+version: '2'
+services:
+
+  dota2parser:
+    image: nopponaim603/dota2parser:flume
+    ports:
+      - "5600:5600"
+    volumes:
+      - ./JSON:/usr/src/parser/JSON
+    environment:
+      - JVM_OPTS=-Xms1024M -Xmx1024M
+    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 10.96.0.3 44444
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.2
+
+  flume:
+    image: nopponaim603/flume:kafka-1.9.0
+    ports:
+      - "44444:44444"
+    volumes:
+      - ./logs:/opt/tmp/
+    environment:
+      - FLUME_AGENT_NAME=docker
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.3
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "sample_topic:1:1,android:1:1,acceleration:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - ./kafka/var/run/docker.sock:/var/run/docker.sock
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.20
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.21
+
+  notebook:
+    #image: jairamc/spark-kafka-streaming-notebook
+    image: nopponaim603/jupyter-notebook:spark-kafka-3.1.2
+    environment:
+      SPARK_OPTS: '--master=spark://master:7077'
+    command: jupyter notebook --ip=0.0.0.0 --allow-root
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebooks:/notebooks
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.22
+
+  master:
+    #image: bitnami/spark
+    #image: jairamc/spark-kafka-streaming
+    image: nopponaim603/spark-streaming-kafka:3.1.2
+    hostname: master
+    environment:
+      SPARK_HOME: /usr/local/spark
+      MASTER: spark://master:7077
+      SPARK_CONF_DIR: /usr/local/spark/conf
+      SPARK_PUBLIC_DNS: localhost
+      HADOOP_HOME: /usr/local/spark
+    ports:
+      - 8080:8080
+      - 7077:7077
+      - 6066:6066
+    command: /usr/local/spark/bin/spark-class org.apache.spark.deploy.master.Master -h master
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.23
+
+  slave:
+    #image: jairamc/spark-kafka-streaming
+    image: nopponaim603/spark-streaming-kafka:3.1.2
+    hostname: worker
+    depends_on:
+      - master
+    environment:
+      SPARK_HOME: /usr/local/spark
+      SPARK_CONF_DIR: /usr/local/spark/conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    ports:
+      - 8081:8081
+    command: /usr/local/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.24
+
+networks:
+  front:
+    # use the bridge driver, but enable IPv6
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.96.0.0/24
+          gateway: 10.96.0.1
+        - subnet: "2001:3984:3989::/64"
+          gateway: "2001:3984:3989::1"
