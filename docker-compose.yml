@@ -17,9 +17,14 @@ services:
 
   flume:
     #image: nopponaim603/flume:kafka-1.9.0
-    image: nopponaim603/flume:kafka-1.9.0-v1
+    image: nopponaim603/flume:kafka-1.9.0-v2
     ports:
       - "44444:44444"
+      - "44451:44451"
+      - "44452:44452"
+      - "44453:44453"
+      - "44454:44454"
+      - "44455:44455"
     volumes:
       - ./logs:/opt/tmp/
     environment:

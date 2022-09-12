@@ -36,4 +36,6 @@ ADD ./conf/flume-a5.conf /usr/local/flume/conf/flume-a5.conf
 
 #ENTRYPOINT [ "start-flume" ]
 CMD flume-ng agent -n docker1 -c /usr/local/flume/conf -f /usr/local/flume/conf/flume-a1.conf -Dflumonf/flume-a1.conf -Dflume.root.logger=INFO,console
-CMD flume-ng agent -n docker2 -c /usr/local/flume/conf -f /usr/local/flume/conf/flume-a2.conf -Dflumonf/flume-a2.conf -Dflume.root.logger=INFO,console
+#CMD flume-ng agent -n docker2 -c /usr/local/flume/conf -f /usr/local/flume/conf/flume-a2.conf -Dflumonf/flume-a2.conf -Dflume.root.logger=INFO,console
+#CMD flume-ng agent -n docker3 -c /usr/local/flume/conf -f /usr/local/flume/conf/flume-a3.conf -Dflumonf/flume-a3.conf -Dflume.root.logger=INFO,console
+#CMD flume-ng agent -n docker4 -c /usr/local/flume/conf -f /usr/local/flume/conf/flume-a4.conf -Dflumonf/flume-a4.conf -Dflume.root.logger=INFO,console
