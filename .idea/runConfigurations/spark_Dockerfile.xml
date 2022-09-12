@@ -2,7 +2,7 @@
   <configuration default="false" name="spark/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
     <deployment type="dockerfile">
       <settings>
-        <option name="imageTag" value="nopponaim603/spark-streaming-kafka:3.1.2" />
+        <option name="imageTag" value="nopponaim603/spark-streaming-kafka:3.3.0" />
         <option name="containerName" value="master" />
         <option name="envVars">
           <list>
