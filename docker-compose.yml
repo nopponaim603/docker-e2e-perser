@@ -9,14 +9,15 @@ services:
       - ./JSON:/usr/src/parser/JSON
     environment:
       - JVM_OPTS=-Xms1024M -Xmx1024M
-    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 10.96.0.3 44444
+    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 flume 44444
     networks:
       # you may set custom IP addresses
       front:
         ipv4_address: 10.96.0.2
 
   flume:
-    image: nopponaim603/flume:kafka-1.9.0
+    #image: nopponaim603/flume:kafka-1.9.0
+    image: nopponaim603/flume:kafka-1.9.0-v1
     ports:
       - "44444:44444"
     volumes:
