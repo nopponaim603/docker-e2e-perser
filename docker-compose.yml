@@ -2,14 +2,14 @@ version: '2'
 services:
 
   dota2parser:
-    image: nopponaim603/dota2parser:flume
+    image: nopponaim603/dota2parser:flume-v2
     ports:
       - "5600:5600"
     volumes:
       - ./JSON:/usr/src/parser/JSON
     environment:
       - JVM_OPTS=-Xms1024M -Xmx1024M
-    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 flume 44444
+    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 flume 44451 3
     networks:
       # you may set custom IP addresses
       front:
