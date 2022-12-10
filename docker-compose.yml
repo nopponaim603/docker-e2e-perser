@@ -9,7 +9,7 @@ services:
       - ./JSON:/usr/src/parser/JSON
     environment:
       - JVM_OPTS=-Xms1024M -Xmx1024M
-    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 flume 44451 3
+    command: java -jar -Xmx1024m /usr/src/parser/target/stats-0.1.0.jar 5600 flume 44451 1
     networks:
       # you may set custom IP addresses
       front:
@@ -35,13 +35,42 @@ services:
         ipv4_address: 10.96.0.3
 
   kafka:
-    image: wurstmeister/kafka
+    #image: wurstmeister/kafka
+    #image: nopponaim603/kafka:3.2.1
+    image: bitnami/kafka:latest
     ports:
       - "9092:9092"
     environment:
+      ALLOW_PLAINTEXT_LISTENER: yes
+      # Ref https://medium.com/@robcowart/deploying-confluent-platform-kafka-oss-using-docker-39b65fa6809b
+      # JVM Heap Size
+      # Kafka uses heap space very carefully and does not require setting heap sizes more than 6 GB.
+      # For most use-cases I have been successful with 4GB of JVM heap.
+      #KAFKA_HEAP_OPTS: '-Xms4g -Xmx4g'
+      KAFKA_BROKER_ID: 0
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_CREATE_TOPICS: "sample_topic:1:1,android:1:1,acceleration:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Listeners
+      # As Kafka is running within the container, it is easiest to configure Kafka to listen on all IPs.
+      #KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+      # A Kafka broker will advertise to producers and consumers the IP address/hostname and port that it is listening on.
+      # If not set, it uses the value for “listeners”. However, since Kafka is listening on all IPs,
+      # the advertised listener is set explicitly to the host IP that we want to be advertised.
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.2.0.21:9092
+
+
+
+      #KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # Default Number of Topic Partitions
+      # If the number of partitions is not specified when a topic is created, the default number of log partitions per topic is used.
+      KAFKA_NUM_PARTITIONS: 2
+      # Default Topic Replication Factor
+      # Similar to the number of partitions, the default replication factor for automatically created topics can also be configured.
+      #KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+
+      #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     volumes:
       - ./kafka/var/run/docker.sock:/var/run/docker.sock
     networks:

@@ -12,6 +12,7 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_CREATE_TOPICS: "sample_topic:1:1,android:1:1,acceleration:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CONGIF: config/server1.properties
     volumes:
       - ./kafka/var/run/docker.sock:/var/run/docker.sock
 
