@@ -1,23 +1,70 @@
 version: '3'
 services:
 
-# Tutorial
-# http://wurstmeister.github.io/kafka-docker/
+  # Tutorial https://www.youtube.com/watch?v=enqqp2ZIEyE&ab_channel=SelfTuts
+  # setup Checker Enable JMX Pooling, Pool consumer, Enable Active OffsetCache
+  kafka_manager:
+    image: hlebalbau/kafka-manager:stable
+    container_name: kafka-manager
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: "zookeeper:2181"
+      ZK_SERVER: "zookeeper:2181"
+      APPLICATION_SECRET: "random-secret"
+    command: -Dpidfile.path=/dev/null
+
+  # Tutorial
+  # http://wurstmeister.github.io/kafka-docker/
 
   kafka:
     image: wurstmeister/kafka
+    #image: nopponaim603/kafka:3.2.1
+    #image: bitnami/kafka:latest
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_CREATE_TOPICS: "sample_topic:1:1,android:1:1,acceleration:1:1"
+      #ALLOW_PLAINTEXT_LISTENER: yes
+      # Ref https://medium.com/@robcowart/deploying-confluent-platform-kafka-oss-using-docker-39b65fa6809b
+      # JVM Heap Size
+      # Kafka uses heap space very carefully and does not require setting heap sizes more than 6 GB.
+      # For most use-cases I have been successful with 4GB of JVM heap.
+      #KAFKA_HEAP_OPTS: '-Xms4g -Xmx4g'
+      #KAFKA_BROKER_ID: 0
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.1.57
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CONGIF: config/server1.properties
-    volumes:
-      - ./kafka/var/run/docker.sock:/var/run/docker.sock
+
+      KAFKA_CREATE_TOPICS: "sample_topic:1:1,android:1:1,acceleration:1:1"
+
+      # Listeners
+      # As Kafka is running within the container, it is easiest to configure Kafka to listen on all IPs.
+      #KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+      # A Kafka broker will advertise to producers and consumers the IP address/hostname and port that it is listening on.
+      # If not set, it uses the value for “listeners”. However, since Kafka is listening on all IPs,
+      # the advertised listener is set explicitly to the host IP that we want to be advertised.
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.2.0.21:9092
+
+
+
+      #KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # Default Number of Topic Partitions
+      # If the number of partitions is not specified when a topic is created, the default number of log partitions per topic is used.
+      #KAFKA_NUM_PARTITIONS: 2
+      # Default Topic Replication Factor
+      # Similar to the number of partitions, the default replication factor for automatically created topics can also be configured.
+      #KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+
+      #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    #volumes:
+    #  - ./kafka/var/run/docker.sock:/var/run/docker.sock
 
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: zookeeper
+    container_name: zookeeper
+    hostname: zookeeper
     ports:
       - "2181:2181"
-
+    environment:
+      ZOO_MY_ID: 1
