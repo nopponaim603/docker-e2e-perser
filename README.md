@@ -5,6 +5,10 @@ end-to-end parser replay game to analysis in docker mode
 
 See [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker) for details
 
+## using Kafdrop to see result
+
+- open on browser from http://localhost:9000/
+
 ### Spark
 
 See [spark/Dockerfile](spark/Dockerfile) to see how the Spark image was set up.
