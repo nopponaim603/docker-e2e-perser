@@ -9,7 +9,7 @@ FLUME_AGENT2_NAME="docker2"
 
 echo "Starting flume agent : ${FLUME_AGENT1_NAME}"
 
-flume-ng agent \
+nohup flume-ng agent \
   -n ${FLUME_AGENT1_NAME} \
   -c ${FLUME_CONF_DIR} \
   -f ${FLUME_CONF_DIR}/flume.conf \

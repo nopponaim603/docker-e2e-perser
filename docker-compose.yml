@@ -34,10 +34,19 @@ services:
       front:
         ipv4_address: 10.96.0.3
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      # you may set custom IP addresses
+      front:
+        ipv4_address: 10.96.0.21
+
   kafka:
-    #image: wurstmeister/kafka
+    image: wurstmeister/kafka
     #image: nopponaim603/kafka:3.2.1
-    image: bitnami/kafka:latest
+    #image: bitnami/kafka:latest
     ports:
       - "9092:9092"
     environment:
@@ -78,14 +87,20 @@ services:
       front:
         ipv4_address: 10.96.0.20
 
-  zookeeper:
-    image: wurstmeister/zookeeper
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
     ports:
-      - "2181:2181"
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - kafka
     networks:
       # you may set custom IP addresses
       front:
-        ipv4_address: 10.96.0.21
+        ipv4_address: 10.96.0.19
 
   notebook:
     #image: jairamc/spark-kafka-streaming-notebook
